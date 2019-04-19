@@ -1,0 +1,24 @@
+Assembling NHITCH.ZAP.31 on Thursday, November 19, 1987 15:13:35
+Release: 31
+
+    64	Inserting NHITCHFREQ.ZAP.1	   (640 bytes)
+   704	Inserting NHITCHDAT.ZAP.31	 (27577 bytes)
+ 28281	Inserting NHITCHPUR.ZAP.31	   (580 bytes)
+ 28861	Inserting MISC.ZAP.33	  (1599 bytes)
+ 30460	Inserting HEART.ZAP.26	 (13541 bytes)
+ 44001	Inserting PARSER.ZAP.26	  (6557 bytes)
+ 50558	Inserting VERBS.ZAP.31	 (14839 bytes)
+ 65397	Inserting EARTH.ZAP.21	 (19426 bytes)
+ 84823	Inserting VOGON.ZAP.19	  (5784 bytes)
+ 90607	Inserting UNEARTH.ZAP.24	  (9726 bytes)
+100333	Inserting GLOBALS.ZAP.28	 (14665 bytes)
+114998	Inserting HINTS.ZAP.25	  (1302 bytes)
+116300	Inserting NHITCHSTR.ZAP.31	 (42110 bytes)
+236 objects.
+182 globals.
+1019 word vocabulary.
+
+158410 bytes (155K).
+ 28281 bytes of preload.
+ 15156 bytes of impure.
+Outputting symbol tables

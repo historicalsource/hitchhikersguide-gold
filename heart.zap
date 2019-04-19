@@ -1,0 +1,1640 @@
+
+
+	.FUNCT	IN-HEART?,OBJ
+	CALL2	META-LOC,OBJ
+	EQUAL?	STACK,ENTRY-BAY,FORE-CORRIDOR,AFT-CORRIDOR /TRUE
+	CALL2	META-LOC,OBJ
+	EQUAL?	STACK,GALLEY,BRIDGE,ENGINE-ROOM /TRUE
+	CALL2	META-LOC,OBJ
+	EQUAL?	STACK,HATCHWAY,PANTRY,ACCESS-SPACE /TRUE
+	RFALSE	
+
+
+	.FUNCT	HEART-OF-GOLD-F
+	EQUAL?	PRSA,V?DISEMBARK,V?EXIT,V?LEAVE \?CCL3
+	EQUAL?	HERE,HATCHWAY \?CCL6
+	CALL2	DO-WALK,P?DOWN
+	RSTACK	
+?CCL6:	EQUAL?	HERE,DAIS \?CCL8
+	PRINT	LOOK-AROUND
+	CRLF	
+	RTRUE	
+?CCL8:	CALL1	V-WALK-AROUND
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?BOARD,V?WALK-TO,V?THROUGH \FALSE
+	EQUAL?	HERE,DAIS \?CCL15
+	CALL2	DO-WALK,P?EAST
+	RSTACK	
+?CCL15:	CALL2	IN-HEART?,PROTAGONIST
+	ZERO?	STACK /FALSE
+	PRINT	LOOK-AROUND
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	PANTRY-F,RARG
+	EQUAL?	RARG,M-ENTER \FALSE
+	ZERO?	LANDED \?CND4
+	MOVE	MARVIN,HERE
+	CALL2	INT,I-MARVIN
+	PUT	STACK,0,0
+?CND4:	FSET?	SCREENING-DOOR,MUNGEDBIT \?PRG10
+	PRINTI	"As you pass the door, it slams against you, bruising your upper arm, and then opens again. ""Take that, door-kicker."""
+	CRLF	
+	CRLF	
+?PRG10:	PRINTI	"Upon entering the room, you are battered by tidal waves of depression. "
+	LESS?	SCORE,300 \?CCL14
+	ICALL2	JIGS-UP,STR?8
+	RTRUE	
+?CCL14:	FSET?	PANTRY,REVISITBIT /?PRG17
+	FSET	PANTRY,REVISITBIT
+	ADD	SCORE,25 >SCORE
+?PRG17:	PRINTI	"However, the happiness derived from your high score and that thoroughly excellent cup of tea you had recently help you to survive."
+	CRLF	
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	SCREENING-DOOR-F
+	EQUAL?	SCREENING-DOOR,WINNER \?CCL3
+	EQUAL?	PRSA,V?TELL-ABOUT \?CCL6
+	EQUAL?	PRSO,ME \?CCL6
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,SCREENING-DOOR,PRSI
+	SET	'WINNER,SCREENING-DOOR
+	RTRUE	
+?CCL6:	EQUAL?	PRSA,V?HELLO \?CCL10
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?HELLO,SCREENING-DOOR
+	SET	'WINNER,SCREENING-DOOR
+	RTRUE	
+?CCL10:	EQUAL?	PRSA,V?WHAT \?PRG15
+	EQUAL?	PRSO,OBJECT-OF-GAME \?PRG15
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,SCREENING-DOOR,OBJECT-OF-GAME
+	SET	'WINNER,SCREENING-DOOR
+	RTRUE	
+?PRG15:	PRINTI	"""Unless you're here to show me some clear sign of your intelligence, please leave me alone. I'm a very busy door."""
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL3:	FSET?	SCREENING-DOOR,OPENBIT \?CCL18
+	EQUAL?	PRSA,V?KNOCK,V?GIVE,V?SHOW /?PRG23
+	EQUAL?	PRSA,V?OPEN \?CCL18
+?PRG23:	PRINTR	"You already induced the door to open."
+?CCL18:	FSET?	SCREENING-DOOR,OPENBIT \?CCL26
+	EQUAL?	PRSA,V?CLOSE \?CCL26
+	PRINTR	"The door snaps, ""Hey! I'm resting. I've had a very busy day."""
+?CCL26:	EQUAL?	PRSA,V?KICK \?CCL32
+	FSET	SCREENING-DOOR,MUNGEDBIT
+	PRINTR	"""I suppose you think that since you have legs and I have not, you can get away with that sort of thing. Well,"" the door continues stiffly, ""maybe you can and maybe you can't."""
+?CCL32:	EQUAL?	PRSA,V?GIVE,V?SHOW \?CCL36
+	EQUAL?	PRSO,NO-TEA,TEA \?CCL39
+	ZERO?	TEA-SHOWN /?CCL39
+	CALL2	HELD?,TEA
+	ZERO?	STACK /?CCL39
+	ZERO?	HOLDING-NO-TEA /?CCL39
+	EQUAL?	PRSO,TEA-SHOWN /?CCL39
+	ICALL	PERFORM,V?KNOCK,SCREENING-DOOR
+	RTRUE	
+?CCL39:	EQUAL?	PRSO,NO-TEA,TEA \?CND45
+	SET	'TEA-SHOWN,PRSO
+?CND45:	RANDOM	100
+	LESS?	50,STACK /?PRG54
+	PRINTI	"The door says, ""Big deal. Anyone can have"
+	ICALL2	ARTICLE,PRSO
+	PRINTR	"."""
+?PRG54:	PRINTR	"The door yawns."
+?CCL36:	EQUAL?	PRSA,V?KNOCK,V?OPEN \?CCL57
+	CALL2	HELD?,TEA
+	ZERO?	STACK /?PRG65
+	ZERO?	HOLDING-NO-TEA /?PRG65
+	FSET	SCREENING-DOOR,OPENBIT
+	PRINTR	"The door is almost speechless with admiration. ""Wow. Simultaneous tea and no tea. My apologies. You are clearly a heavy-duty philosopher."" It opens respectfully."
+?PRG65:	PRINTR	"The door explains, in a haughty tone, that the room is occupied by a superintelligent robot and that lesser beings (by which it means you) are not to be admitted. ""Show me some tiny example of your intelligence,"" it says, ""and maybe, just maybe, I might reconsider."""
+?CCL57:	EQUAL?	PRSA,V?ASK-ABOUT \?CCL68
+	EQUAL?	PRSI,OBJECT-OF-GAME \?CCL68
+	PRINTR	"""To keep out subintelligent beings."""
+?CCL68:	EQUAL?	PRSA,V?THROUGH \?CCL74
+	EQUAL?	HERE,PANTRY \?CCL77
+	CALL2	DO-WALK,P?EAST
+	RSTACK	
+?CCL77:	CALL2	DO-WALK,P?WEST
+	RSTACK	
+?CCL74:	EQUAL?	PRSA,V?EXAMINE \FALSE
+	FCLEAR	SCREENING-DOOR,ACTORBIT
+	ICALL1	V-LOOK-INSIDE
+	FSET	SCREENING-DOOR,ACTORBIT
+	RTRUE	
+
+
+	.FUNCT	MARVIN-F
+	EQUAL?	MARVIN,WINNER \?CCL3
+	EQUAL?	PRSA,V?TELL-ABOUT \?CCL6
+	EQUAL?	PRSO,ME \?CCL6
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,MARVIN,PRSI
+	SET	'WINNER,MARVIN
+	RTRUE	
+?CCL6:	EQUAL?	PRSA,V?HELLO \?CCL10
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?HELLO,MARVIN
+	SET	'WINNER,MARVIN
+	RTRUE	
+?CCL10:	EQUAL?	PRSA,V?WHAT \?CCL12
+	EQUAL?	PRSO,OBJECT-OF-GAME \?CCL12
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,MARVIN,OBJECT-OF-GAME
+	SET	'WINNER,MARVIN
+	RTRUE	
+?CCL12:	EQUAL?	HERE,PANTRY \?PRG50
+	EQUAL?	PRSA,V?OPEN,V?REPAIR \?CCL19
+	EQUAL?	PRSO,MECHANISM,HATCH \?CCL19
+	ZERO?	LANDED \?CCL24
+	PRINTC	34
+	PRINT	HUMANS
+	PRINTR	"stupid. Are you aware,"" he asks, ""that this ship is in space, that space is an almost perfect vacuum, and that the hatch is the only thing holding in all the air?"""
+?CCL24:	EQUAL?	MARVIN-COUNTER,3 \?CCL28
+	PRINTI	"""After the help I got last time? "
+	PRINT	HUMANS
+	PRINTR	"ungrateful. Go away."""
+?CCL28:	EQUAL?	MARVIN-COUNTER,4 \?CCL32
+	PRINTR	"""I did."""
+?CCL32:	GRTR?	MARVIN-COUNTER,0 \?CCL36
+	PRINTI	"""Yes, I said I'd do it! "
+	PRINT	HUMANS
+	PRINTR	"repetitious."""
+?CCL36:	SET	'MARVIN-COUNTER,1
+	CALL	QUEUE,I-MARVIN,12
+	PUT	STACK,0,1
+	PRINTC	34
+	PRINT	HUMANS
+	PRINTI	"demanding. Do this. Pick up that. Unjam the opening mechanism of the other. Meet me in the hatchway "
+	PRINTD	ACCESS-SPACE
+	PRINTR	" in twelve turns. I suppose,"" he mutters, ""you can count up to twelve. So hard to know with morons. And don't forget to bring the proper tool."""
+?CCL19:	EQUAL?	PRSA,V?WHAT \?PRG48
+	EQUAL?	PRSO,TWEEZERS \?PRG48
+	GRTR?	MARVIN-COUNTER,0 \?PRG48
+	PRINTR	"Marvin looks scornful. ""How did you get past my door if you're so primordially benighted that you don't even know which tool is needed for a job like this?"""
+?PRG48:	PRINTI	"""Please don't feel you have to take any notice of me. I'm just a menial robot."""
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?PRG50:	PRINTI	"""I think you ought to know I'm feeling very depressed."""
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?ASK-ABOUT \?CCL53
+	EQUAL?	PRSI,OBJECT-OF-GAME \?CCL53
+	PRINTR	"""Being clever doesn't always make you happy, you know. Look at me, brain the size of a planet, how many points do you think I've got? Minus thirty zillion at the last count."""
+?CCL53:	EQUAL?	PRSA,V?FOLLOW \?CCL59
+	EQUAL?	FOLLOW-FLAG,2 \?CCL59
+	IN?	MARVIN,PANTRY \?CCL64
+	CALL2	DO-WALK,P?WEST
+	RSTACK	
+?CCL64:	LOC	MARVIN
+	CALL2	GOTO,STACK
+	RSTACK	
+?CCL59:	EQUAL?	PRSA,V?FOLLOW \?CCL66
+	EQUAL?	FOLLOW-FLAG,7 \?CCL66
+	CALL2	DO-WALK,P?WEST
+	RSTACK	
+?CCL66:	EQUAL?	PRSA,V?GIVE \FALSE
+	EQUAL?	MARVIN-COUNTER,2 \FALSE
+	EQUAL?	PRSO,TOOL-REQUIRED \?PRG78
+	ADD	SCORE,25 >SCORE
+	SET	'MARVIN-COUNTER,4
+	SET	'FOLLOW-FLAG,7
+	CALL	QUEUE,I-FOLLOW,2
+	PUT	STACK,0,1
+	CALL2	INT,I-MARVIN
+	PUT	STACK,0,0
+	FSET	HATCH,OPENBIT
+	MOVE	MARVIN,PANTRY
+	MOVE	TOOL-REQUIRED,MARVIN
+	PRINTI	"Marvin fiddles inside the "
+	PRINTD	MECHANISM
+	PRINTI	" with the "
+	PRINTD	TOOL-REQUIRED
+	PRINTR	" for about three tenths of a second. You hear the hatchway slide open. ""I don't expect you to be grateful,"" says Marvin, ""or even interested, but that was probably more complicated than every single action you'll ever perform in your entire life put together."" He limps away. ""And me,"" you hear him mutter as he goes, ""with this terrible pain in all the diodes down my left side."""
+?PRG78:	PRINTI	"""That's not"
+	ICALL2	ARTICLE,TOOL-REQUIRED
+	PRINTR	"."""
+
+
+	.FUNCT	I-MARVIN
+	CALL	QUEUE,I-MARVIN,-1
+	PUT	STACK,0,1
+	EQUAL?	MARVIN-COUNTER,2 \?CCL3
+	SET	'MARVIN-COUNTER,3
+	CRLF	
+	EQUAL?	HERE,HATCHWAY \?PRG8
+	PRINTI	"Marvin emerges from the "
+	PRINTD	ACCESS-SPACE
+	PRINTI	". "
+?PRG8:	PRINTC	34
+	ICALL1	MARVIN-BITCH
+	SET	'MARVIN-COUNTER,3
+	RETURN	MARVIN-COUNTER
+?CCL3:	IN?	MARVIN,ACCESS-SPACE \?CCL11
+	EQUAL?	HERE,ACCESS-SPACE \?PRG25
+	ZERO?	TOOL-REQUIRED \?CND15
+?PRG17:	CALL2	PICK-ONE,TOOL-LIST >TOOL-REQUIRED
+	CALL	HELD?,TOOL-REQUIRED,PROTAGONIST
+	ZERO?	STACK \?PRG17
+?CND15:	SET	'P-IT-OBJECT,TOOL-REQUIRED
+	SET	'MARVIN-COUNTER,2
+	PRINTI	"Marvin, looking bored, says, ""Hand me"
+	ICALL2	ARTICLE,TOOL-REQUIRED
+	PRINTR	"."""
+?PRG25:	CRLF	
+	PRINTI	"Marvin wanders up to you. ""I went to the "
+	PRINTD	ACCESS-SPACE
+	PRINTI	" but you never showed up. "
+	ICALL1	MARVIN-BITCH
+	SET	'MARVIN-COUNTER,3
+	RETURN	MARVIN-COUNTER
+?CCL11:	EQUAL?	MARVIN-COUNTER,1 \?CCL28
+	MOVE	MARVIN,ACCESS-SPACE
+	EQUAL?	HERE,ACCESS-SPACE \FALSE
+	PRINTR	"Marvin shambles in."
+?CCL28:	IN?	MARVIN,HERE \?CCL35
+	CALL	QUEUE,I-FOLLOW,2
+	PUT	STACK,0,1
+	SET	'FOLLOW-FLAG,2
+	CRLF	
+	EQUAL?	HERE,HATCHWAY,GALLEY,ENTRY-BAY /?PRG41
+	EQUAL?	HERE,FORE-CORRIDOR,ENGINE-ROOM,BRIDGE \?CCL38
+?PRG41:	PRINTI	"Marvin wanders off."
+	CRLF	
+	EQUAL?	HERE,FORE-CORRIDOR,ENGINE-ROOM,HATCHWAY \?CCL45
+	MOVE	MARVIN,AFT-CORRIDOR
+	RTRUE	
+?CCL45:	MOVE	MARVIN,FORE-CORRIDOR
+	RTRUE	
+?CCL38:	EQUAL?	HERE,AFT-CORRIDOR \?PRG50
+	MOVE	MARVIN,PANTRY
+	PRINTR	"Marvin enters a room to port, and the door closes behind him."
+?PRG50:	PRINTI	"Bug #17"
+	RTRUE	
+?CCL35:	IN?	MARVIN,PANTRY /?CCL53
+	MOVE	MARVIN,PANTRY
+	RFALSE	
+?CCL53:	CALL2	IN-HEART?,PROTAGONIST
+	ZERO?	STACK /FALSE
+	EQUAL?	HERE,ACCESS-SPACE /FALSE
+	FSET?	SCREENING-DOOR,OPENBIT /FALSE
+	ZERO?	AWAITING-REPLY \FALSE
+	EQUAL?	HERE,ENGINE-ROOM \?CCL61
+	LESS?	LOOK-COUNTER,3 /FALSE
+?CCL61:	RANDOM	100
+	LESS?	8,STACK /FALSE
+	MOVE	MARVIN,HERE
+	CRLF	
+	PRINTR	"You feel a wave of depression sweep over you, and you turn to see that Marvin the robot has stalked miserably into the room."
+
+
+	.FUNCT	MARVIN-BITCH
+	CALL2	INT,I-MARVIN
+	PUT	STACK,0,0
+	MOVE	MARVIN,PANTRY
+	PRINTI	"Ah. I was misled into thinking that you wanted me to open the hatch, probably by the fact that you asked me to. Obviously you changed your mind or I misunderstood you or you are a moronic imbecile. I wonder which"
+	EQUAL?	HERE,PANTRY /?PRG7
+	PRINTI	". I'm going back to my pantry to be alone with my grief"
+?PRG7:	PRINTR	"."" Marvin stalks miserably away."
+
+
+	.FUNCT	FLOWERPOT-F
+	EQUAL?	PRSA,V?WATER \?CCL3
+	EQUAL?	PRSO,FLOWERPOT \?CCL3
+	IN?	PLANT,FLOWERPOT \?CCL3
+	ICALL	PERFORM,V?WATER,PLANT,PRSI
+	RTRUE	
+?CCL3:	EQUAL?	PRSA,V?LOOK-INSIDE,V?READ,V?EXAMINE \?CCL8
+	PRINTI	"The pot is filled with fertile soil"
+	IN?	PLANT,FLOWERPOT \?PRG23
+	PRINTI	", out of which has sprouted a "
+	ZERO?	PLANT-BLOOMED /?PRG21
+	PRINTI	"large, leafy plant"
+	JUMP	?PRG25
+?PRG21:	PRINTI	"tiny plant stalk"
+	JUMP	?PRG25
+?PRG23:	PRINTI	". It is inscribed ""Inertial Guidance System -- Magrathean Missile Company."" It must have been created by the same burst of improbability that created the whale itself"
+?PRG25:	PRINTR	"."
+?CCL8:	EQUAL?	PRSA,V?PUT \?CCL28
+	EQUAL?	PRSO,SATCHEL-FLUFF,JACKET-FLUFF,POCKET-FLUFF /?CTR27
+	EQUAL?	PRSO,CUSHION-FLUFF \?CCL28
+?CTR27:	MOVE	PRSO,LOCAL-GLOBALS
+	INC	'FLUFF-COUNTER
+	EQUAL?	FLUFF-COUNTER,4 \?PRG35
+	CALL	QUEUE,I-PLANT,10
+	PUT	STACK,0,1
+?PRG35:	PRINTI	"You dig a "
+	PRINTD	FISH-HOLE
+	PRINTR	", gingerly place the fluff at the bottom, and cover it over."
+?CCL28:	EQUAL?	PRSA,V?CLOSE,V?OPEN \FALSE
+	EQUAL?	PRSO,FLOWERPOT \FALSE
+	CALL1	TELL-ME-HOW
+	RSTACK	
+
+
+	.FUNCT	I-PLANT
+	MOVE	PLANT,FLOWERPOT
+	CALL2	VISIBLE?,FLOWERPOT
+	ZERO?	STACK /FALSE
+	CRLF	
+	PRINTI	"You notice a tiny movement from the "
+	PRINTD	FLOWERPOT
+	PRINTR	". You look closely, and see a tiny sprout poking out of the soil."
+
+
+	.FUNCT	PLANT-F
+	EQUAL?	PRSA,V?EXAMINE \?CCL3
+	ZERO?	PLANT-BLOOMED /?PRG15
+	PRINTI	"The plant is now large and leafy."
+	FSET?	FRUIT,NDESCBIT \?CND9
+	CALL2	VISIBLE?,FRUIT
+	ZERO?	STACK /?CND9
+	PRINTR	" Hanging from it is a large, succulent fruit."
+?CND9:	CRLF	
+	RTRUE	
+?PRG15:	PRINTR	"The plant is just a tiny stem."
+?CCL3:	EQUAL?	PRSA,V?DROP,V?TAKE \?CCL18
+	EQUAL?	PRSO,PLANT \?CCL18
+	ZERO?	PRSI /?CCL23
+	CALL1	PART-OF
+	RSTACK	
+?CCL23:	ICALL	PERFORM,PRSA,FLOWERPOT,PRSI
+	RTRUE	
+?CCL18:	EQUAL?	PRSA,V?WATER \FALSE
+	ZERO?	PLANT-BLOOMED \FALSE
+	EQUAL?	PRSI,TEA,SUBSTITUTE,MINERAL-WATER \FALSE
+	MOVE	PRSI,LOCAL-GLOBALS
+	MOVE	PLANT,LOCAL-GLOBALS
+	PRINTI	"After several seconds, the plant shrivels up."
+	ICALL2	ANTI-LITTER,STR?10
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	FRUIT-F,X
+	EQUAL?	PRSA,V?PICK,V?TAKE \?CCL3
+	FSET?	FRUIT,TRYTAKEBIT \?CCL3
+	FCLEAR	FRUIT,TRYTAKEBIT
+	FCLEAR	FRUIT,NDESCBIT
+	MOVE	FRUIT,PROTAGONIST
+	PRINTR	"Done."
+?CCL3:	EQUAL?	PRSA,V?THROW,V?DROP \?CCL9
+	FSET?	FRUIT,TRYTAKEBIT \?CCL9
+	FCLEAR	FRUIT,TRYTAKEBIT
+	FCLEAR	FRUIT,NDESCBIT
+	MOVE	FRUIT,HERE
+	EQUAL?	PRSA,V?DROP \?PRG17
+	PRINTR	"Dropped."
+?PRG17:	PRINTR	"Thrown."
+?CCL9:	EQUAL?	PRSA,V?EAT \FALSE
+?PRG21:	CALL2	PICK-ONE,TOOL-LIST >TOOL-REQUIRED
+	INC	'X
+	CALL2	IN-HEART?,TOOL-REQUIRED
+	ZERO?	STACK /?REP22
+	GRTR?	X,50 \?PRG21
+?REP22:	MOVE	FRUIT,LOCAL-GLOBALS
+	PRINTI	"The fruit has a zesty taste, and you devour it greedily. Suddenly, your vision wavers, and you see yourself, as though from a distance, standing near Marvin, who asks you for"
+	ICALL2	ARTICLE,TOOL-REQUIRED
+	PRINTI	". Then, the image vanishes like a movie when the film breaks, and you find yourself still in"
+	ICALL	ARTICLE,HERE,TRUE-VALUE
+	PRINTR	".
+
+It seems that this plant is a rare horticultural phenomenon long thought to be extinct: The Tree of Foreknowledge."
+
+
+	.FUNCT	GALLEY-F,RARG
+	EQUAL?	RARG,M-LOOK \?CCL3
+	PRINTI	"You are in the Galley area of the ship, containing a machine which is the state of the art in Nutritional Technology, a "
+	PRINT	SCC
+	PRINTC	32
+	PRINTD	NUTRIMAT
+	PRINTR	". There is an exit to starboard."
+?CCL3:	EQUAL?	RARG,M-END \FALSE
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK \FALSE
+	RANDOM	100
+	LESS?	3,STACK /FALSE
+	SET	'FOLLOW-FLAG,6
+	CALL	QUEUE,I-FOLLOW,2
+	PUT	STACK,0,1
+	CRLF	
+	PRINTD	ZAPHOD
+	PRINTI	" walks in and presses the "
+	PRINTD	PAD
+	PRINTI	". The "
+	PRINTD	NUTRIMAT
+	PRINTR	" produces a huge, ice-cold Pan-Galactic Gargle Blaster. Zaphod heads off toward the sauna, sipping loudly."
+
+
+	.FUNCT	NUTRIMAT-F
+	EQUAL?	NUTRIMAT,WINNER \?CCL3
+	EQUAL?	PRSA,V?TELL-ABOUT \?CCL6
+	EQUAL?	PRSO,ME \?CCL6
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,NUTRIMAT,PRSI
+	SET	'WINNER,NUTRIMAT
+	RTRUE	
+?CCL6:	EQUAL?	PRSA,V?HELLO \?CCL10
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?HELLO,NUTRIMAT
+	SET	'WINNER,NUTRIMAT
+	RTRUE	
+?CCL10:	EQUAL?	PRSA,V?WHAT \?CCL12
+	EQUAL?	PRSO,OBJECT-OF-GAME \?CCL12
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,NUTRIMAT,OBJECT-OF-GAME
+	SET	'WINNER,NUTRIMAT
+	RTRUE	
+?CCL12:	EQUAL?	PRSA,V?SGIVE \?PRD18
+	EQUAL?	PRSO,ME /?CTR15
+?PRD18:	EQUAL?	PRSA,V?GIVE \?CCL16
+	EQUAL?	PRSI,ME \?CCL16
+?CTR15:	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-FOR,NUTRIMAT,PRSI
+	SET	'WINNER,NUTRIMAT
+	RTRUE	
+?CCL16:	EQUAL?	PRSA,V?MAKE \?PRG27
+	EQUAL?	PRSO,NO-TEA,TEA \?PRG27
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?RUB,PAD
+	SET	'WINNER,NUTRIMAT
+	RTRUE	
+?PRG27:	PRINTI	"The "
+	PRINTD	NUTRIMAT
+	PRINTI	" ignores you."
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?EXAMINE \?CCL30
+	PRINTI	"The "
+	PRINTD	NUTRIMAT
+	PRINTI	" has a "
+	PRINTD	PAD
+	PRINTI	", a dispensing slot, and a service panel which is "
+	FSET?	NUTRIMAT,OPENBIT \?PRG38
+	PRINTI	"open"
+	JUMP	?PRG40
+?PRG38:	PRINTI	"closed"
+?PRG40:	PRINTC	46
+	ICALL1	FINE-PRODUCT
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?CCL44
+	PRINTC	32
+	ICALL	PERFORM,V?LISTEN,NUTRIMAT
+	RTRUE	
+?CCL44:	CRLF	
+	RTRUE	
+?CCL30:	EQUAL?	PRSA,V?LISTEN \?CCL48
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?CCL48
+	PRINTI	"The "
+	PRINTD	NUTRIMAT
+	PRINTR	" is making a faint whirring noise."
+?CCL48:	EQUAL?	PRSA,V?ASK-FOR \?CCL54
+	EQUAL?	PRSI,SUBSTITUTE,TEA \?CCL54
+	ICALL	PERFORM,V?RUB,PAD
+	RTRUE	
+?CCL54:	EQUAL?	PRSA,V?LAMP-ON \?CCL58
+	ICALL	PERFORM,V?RUB,PAD
+	RTRUE	
+?CCL58:	EQUAL?	PRSA,V?LAMP-OFF \?CCL60
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?CCL60
+	ICALL	PERFORM,V?RUB,PAD
+	RTRUE	
+?CCL60:	EQUAL?	PRSA,V?SHAKE,V?KICK,V?KILL \?CCL64
+	ZERO?	SUBSTITUTE-DRUNK /?CCL64
+	PRINTI	"The "
+	PRINTD	NUTRIMAT
+	PRINTI	" says, "
+	RANDOM	100
+	LESS?	50,STACK /?PRG74
+	PRINTR	"""Share and Enjoy."""
+?PRG74:	PRINTR	"""If you have enjoyed the experience of this drink, why not share it with your friends?"""
+?CCL64:	EQUAL?	PRSA,V?PLUG,V?PUT \?CCL77
+	EQUAL?	PRSI,NUTRIMAT \?CCL77
+	FSET?	NUTRIMAT,OPENBIT /?CCL82
+	PRINTR	"The panel is closed."
+?CCL82:	FIRST?	NUTRIMAT \?CCL86
+	PRINTR	"There's no room."
+?CCL86:	EQUAL?	PRSO,NUT-COM-INTERFACE,BOARD \?CCL90
+	MOVE	PRSO,NUTRIMAT
+	PRINTR	"Done."
+?CCL90:	CALL1	V-PLUG
+	RSTACK	
+?CCL77:	EQUAL?	PRSA,V?LOOK-INSIDE \?CCL94
+	FSET?	NUTRIMAT,OPENBIT /?CCL97
+	ICALL	PERFORM,V?OPEN,NUTRIMAT
+	RTRUE	
+?CCL97:	IN?	BOARD,NUTRIMAT \?CCL99
+	PRINTI	"There is a "
+	PRINTD	BOARD
+	PRINTR	" there."
+?CCL99:	IN?	NUT-COM-INTERFACE,NUTRIMAT \?PRG106
+	PRINTI	"There is a "
+	PRINTD	NUT-COM-INTERFACE
+	PRINTR	" there."
+?PRG106:	PRINTI	"There's nothing in the "
+	PRINTD	NUTRIMAT
+	PRINTR	"."
+?CCL94:	EQUAL?	PRSA,V?ASK-ABOUT \FALSE
+	EQUAL?	PRSI,OBJECT-OF-GAME \FALSE
+	PRINTR	"""To provide a nutritious and flavour-enhanced diet."""
+
+
+	.FUNCT	PAD-F
+	EQUAL?	PRSA,V?PUSH,V?RUB \FALSE
+	IN?	NUT-COM-INTERFACE,NUTRIMAT \?CCL6
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?CCL9
+	PRINTI	"""Please wait..."
+	PRINTD	NUTRIMAT
+	PRINTR	" engaged."""
+?CCL9:	IN?	TEA,PAD \?PRG16
+	CALL	QUEUE,I-TEA,-1
+	PUT	STACK,0,1
+	PRINTI	"The "
+	PRINTD	NUTRIMAT
+	PRINTI	" is puzzled that you want something made by pouring boiling water on dead leaves and squirting stuff from a cow in it, and says that it will need some help from "
+	PRINTD	EDDIE
+	PRINTR	"."
+?PRG16:	PRINTI	"""I won't go through that again. If "
+	PRINTD	SUBSTITUTE
+	PRINTR	" isn't good enough, too bad."""
+?CCL6:	IN?	SUBSTITUTE,PAD \?PRG22
+	MOVE	SUBSTITUTE,SLOT
+	SET	'P-IT-OBJECT,SUBSTITUTE
+	PRINTI	"The "
+	PRINTD	NUTRIMAT
+	PRINTI	" makes an instant but highly detailed examination of your taste buds, a spectroscopic analysis of your metabolism and sends tiny experimental signals down your neural pathways to see what you like.
+A cupful of "
+	PRINTD	SUBSTITUTE
+	PRINTR	" appears in the dispensing slot."
+?PRG22:	PRINTI	"""You still haven't drunk the nutritious and flavour-enhanced cupful of "
+	PRINTD	SUBSTITUTE
+	PRINTI	" I already gave you,"" scolds the "
+	PRINTD	NUTRIMAT
+	PRINTR	"."
+
+
+	.FUNCT	SLOT-F
+	EQUAL?	PRSA,V?CLOSE,V?OPEN \FALSE
+	EQUAL?	PRSO,SLOT \FALSE
+	CALL1	TELL-ME-HOW
+	RSTACK	
+
+
+	.FUNCT	BOARD-F
+	EQUAL?	PRSA,V?CLOSE,V?OPEN \?CCL3
+	EQUAL?	PRSO,BOARD \?CCL3
+	CALL1	TELL-ME-HOW
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?EXAMINE \?CCL7
+	PRINTI	"The "
+	PRINTD	PRSO
+	PRINTI	" is square, about ten inches on each side. It has a number of microchips, some printed circuitry, and a message printed in microscopic letters. There are also eight "
+	PRINTD	DIPSWITCH
+	PRINTR	"es, marked:
+  1  Cholesterol Register
+  2  MSG Specifier
+  3  Thiamin Stack
+  4  Piquant-O-Mat
+  5  Flavour Dump
+  6  Vitamin Interrupts
+  7  Nose Sequencer
+  8  Bouquet Arbitration Bus"
+?CCL7:	EQUAL?	PRSA,V?MUNG \?CCL11
+	MOVE	BOARD,LOCAL-GLOBALS
+	PRINTR	"It's all the device deserves. It shatters with a satisfying crunch."
+?CCL11:	EQUAL?	PRSA,V?EXAMINE-THROUGH,V?READ \?CCL15
+	EQUAL?	PRSI,MAGNIFYING-GLASS \?CCL15
+	PRINTR	"The message reads ""This is just a satirical device. It has no practical function."""
+?CCL15:	EQUAL?	PRSA,V?READ \FALSE
+	PRINTR	"The message is too small for you to read."
+
+
+	.FUNCT	DIPSWITCH-F
+	EQUAL?	PRSA,V?LAMP-ON,V?THROW,V?TURN /?PRG6
+	EQUAL?	PRSA,V?MOVE,V?PUSH,V?LAMP-OFF \FALSE
+?PRG6:	PRINTI	"Switched."
+	IN?	BOARD,NUTRIMAT \?CCL10
+	PRINTI	" Some lights on the "
+	PRINTD	NUTRIMAT
+	PRINTR	" flash briefly. A promising hum quickly dies away."
+?CCL10:	CRLF	
+	RTRUE	
+
+
+	.FUNCT	SUBSTITUTE-DESCFCN,X
+	CALL2	DESCRIBE-DRINK,SUBSTITUTE
+	RSTACK	
+
+
+	.FUNCT	SUBSTITUTE-F
+	EQUAL?	PRSA,V?DRINK-FROM,V?ENJOY,V?DRINK \?CCL3
+	CALL2	HELD?,SUBSTITUTE
+	ZERO?	STACK \?CCL6
+	PRINT	NOT-HOLDING
+	PRINTR	" the cup!"
+?CCL6:	GRTR?	SCORE,300 \?CCL10
+	PRINTR	"You'd rather continue savouring that delicious tea."
+?CCL10:	ZERO?	SUBSTITUTE-DRUNK /?CND4
+	SUB	SCORE,30 >SCORE
+	SET	'DREAMING,FALSE-VALUE
+	PRINTI	"That last gulp of the vile "
+	PRINTD	SUBSTITUTE
+	ICALL2	JIGS-UP,STR?11
+	RTRUE	
+?CND4:	EQUAL?	SUBSTITUTE,BROWNIAN-SOURCE \?CND16
+	SET	'BROWNIAN-SOURCE,FALSE-VALUE
+?CND16:	SET	'SUBSTITUTE-DRUNK,TRUE-VALUE
+	SUB	SCORE,30 >SCORE
+	MOVE	SUBSTITUTE,PAD
+	PRINTI	"It tastes almost, but not quite, entirely unlike tea. It's absolutely disgusting."
+	ICALL2	ANTI-LITTER,STR?10
+	EQUAL?	HERE,GALLEY \?CND20
+	PRINTC	32
+	ICALL	PERFORM,V?KILL,NUTRIMAT
+	RTRUE	
+?CND20:	CRLF	
+	RTRUE	
+?CCL3:	EQUAL?	PRSA,V?LOOK-INSIDE,V?EXAMINE \?CCL25
+	PRINTI	"About the only characteristic it shares with tea is that of"
+	PRINT	BROWNIAN
+	PRINTC	46
+	EQUAL?	PRSO,BROWNIAN-SOURCE \?CCL30
+	PRINTC	32
+	ICALL	PERFORM,V?EXAMINE,DANGLY-BIT
+	RTRUE	
+?CCL30:	CRLF	
+	RTRUE	
+?CCL25:	EQUAL?	PRSA,V?THROW,V?POUR \FALSE
+	CALL1	LIQUID-SPILL
+	RSTACK	
+
+
+	.FUNCT	INTERFACE-BOX-F
+	EQUAL?	PRSA,V?EXAMINE,V?READ \FALSE
+	PRINTI	"The carton is labelled """
+	PRINTD	NUT-COM-INTERFACE
+	PRINTI	"."""
+	CRLF	
+	EQUAL?	PRSA,V?EXAMINE /FALSE
+	RTRUE	
+
+
+	.FUNCT	BEAST-GUN-F
+	EQUAL?	PRSA,V?READ,V?EXAMINE \FALSE
+	PRINTI	"The gun has a large label which reads ""Anti-Bugblatter Beast Ray Gun."""
+	ICALL1	FINE-PRODUCT
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	I-TEA
+	INC	'TEA-COUNTER
+	EQUAL?	HERE,GALLEY /?CND1
+	LESS?	TEA-COUNTER,7 /FALSE
+?CND1:	CRLF	
+	EQUAL?	TEA-COUNTER,1 \?CCL7
+	PRINTR	"The nutrimat begins to whirr."
+?CCL7:	EQUAL?	TEA-COUNTER,2 \?CCL11
+	PRINTR	"A red sign lights up saying:
+   MEMORY OVERLOAD"
+?CCL11:	EQUAL?	TEA-COUNTER,3 \?CCL15
+	PRINTR	"Another red sign lights up saying:
+   RESERVE MEMORY OVERLOAD"
+?CCL15:	EQUAL?	TEA-COUNTER,4 \?CCL19
+	PRINTR	"A third sign lights up:
+   PROCESSOR OVERLOAD,
+   SWITCH TO TERMINAL MODE"
+?CCL19:	EQUAL?	TEA-COUNTER,5 \?CCL23
+	PRINTR	"A blue sign lights up:
+   NUTRIMAT GOING ON LINE"
+?CCL23:	EQUAL?	TEA-COUNTER,6 \?CCL27
+	PRINTR	"More and more signs light up:
+   SHIPBOARD COMPUTER ACCESSED
+   MAIN MEMORY OVERLOAD
+   RESERVE MEMORY ACCESSED
+   PARALLEL PROCESSORS ON LINE
+
+   ****************************
+   ** NUMBERS BEING CRUNCHED **
+   ****************************"
+?CCL27:	EQUAL?	TEA-COUNTER,7 \?CCL31
+	FSET	THUMB,MUNGEDBIT
+	PRINT	ANNOUNCEMENT
+	PRINTD	EDDIE
+	PRINTI	". Emergency situation! Nuclear missiles have just been launched at us from the approaching planet, which my data banks indicate is"
+	PRINT	LOST-PLANET
+	PRINTI	". I cannot perform evasive maneuvers because"
+	PRINT	ENGAGED
+	PRINTD	NUTRIMAT
+	PRINTR	". The missiles will turn this ship into a huge atomic fireball in approximately eight turns. By the way, somebody didn't finish their spinach at dinner."""
+?CCL31:	LESS?	TEA-COUNTER,15 \?CCL35
+	PRINTR	"You hear distant sounds of panic: shouts of anger, cries of alarm, pounding feet."
+?CCL35:	CALL2	INT,I-TEA
+	PUT	STACK,0,0
+	PRINTI	"It seems that the missiles struck "
+	PRINTD	HEART-OF-GOLD
+	ICALL2	JIGS-UP,STR?13
+	RTRUE	
+
+
+	.FUNCT	I-LANDING
+	CALL2	IN-HEART?,PROTAGONIST
+	ZERO?	STACK \?CCL3
+	CALL	QUEUE,I-LANDING,12
+	PUT	STACK,0,1
+	RFALSE	
+?CCL3:	MOVE	MARVIN,PANTRY
+	CALL2	INT,I-MARVIN
+	PUT	STACK,0,0
+	SET	'LANDED,TRUE-VALUE
+	CRLF	
+	PRINT	ANNOUNCEMENT
+	PRINTD	EDDIE
+	PRINTI	". We have just landed on"
+	PRINT	LOST-PLANET
+	PRINTR	". I don't want anyone going outside until I've checked the atmosphere, climatic conditions, existence of dangerous wildlife, airborne diseases, volcanic activity, presence of real estate agents, and more than eight thousand other possible dangers. This routine check will take 14.9 years. And don't even think about leaving until I finish, because I'm jamming the hatch."""
+
+
+	.FUNCT	SAUNA-ENTER-F
+	ICALL1	UNPLUG-HELD-STUFF
+	RANDOM	12
+	ADD	10,STACK
+	ADD	MOVES,STACK >MOVES
+	PRINTI	"You enter the sauna. After several "
+	CALL2	RUNNING?,I-FORD
+	ZERO?	STACK /?PRG8
+	PRINTI	"minutes"
+	JUMP	?PRG10
+?PRG8:	PRINTI	"hours"
+?PRG10:	PRINTI	", you come out a changed man."
+	CALL2	HELD?,FLOWERPOT
+	ZERO?	STACK /?CND12
+	IN?	PLANT,FLOWERPOT \?CND12
+	ZERO?	PLANT-BLOOMED \?CND12
+	SET	'PLANT-BLOOMED,TRUE-VALUE
+	ADD	SCORE,25 >SCORE
+	MOVE	FRUIT,FLOWERPOT
+	PRINTI	" You have with you a changed plant."
+?CND12:	CRLF	
+	IN?	MARVIN,BRIDGE \FALSE
+	MOVE	MARVIN,PANTRY
+	RFALSE	
+
+
+	.FUNCT	BRIDGE-F,RARG
+	EQUAL?	RARG,M-LOOK \FALSE
+	PRINTI	"This is the bridge of "
+	PRINTD	HEART-OF-GOLD
+	PRINTI	". A gangway leads down, and steam comes from an entrance to port. Next to the control console is "
+	PRINTD	EDDIE
+	PRINTC	46
+	ZERO?	DRIVE-TO-CONTROLS /?CCL8
+	PRINTC	32
+	ICALL	PERFORM,V?EXAMINE,LARGE-RECEPTACLE
+	JUMP	?CND6
+?CCL8:	CRLF	
+?CND6:	FSET?	BRIDGE,NDESCBIT /FALSE
+	FSET	BRIDGE,NDESCBIT
+	CRLF	
+	PRINTR	"At the controls, apparently expecting you and Ford, are a man with more than the usual number of heads (the name ""Zaphod"" is stitched on his shirt) and a dark-haired woman, holding a handbag. Both seem somehow familiar."
+
+
+	.FUNCT	SAUNA-PSEUDO
+	EQUAL?	PRSA,V?BOARD,V?WALK-TO,V?THROUGH \FALSE
+	EQUAL?	HERE,BRIDGE \FALSE
+	CALL2	DO-WALK,P?WEST
+	RSTACK	
+
+
+	.FUNCT	PEOPLE-PSEUDO
+	IN?	ZAPHOD,HERE /?CCL3
+	PRINTR	"What people?"
+?CCL3:	EQUAL?	PRSA,V?EXAMINE \FALSE
+	ICALL	PERFORM,V?EXAMINE,ZAPHOD
+	ICALL	PERFORM,V?EXAMINE,TRILLIAN
+	RTRUE	
+
+
+	.FUNCT	EDDIE-F
+	EQUAL?	EDDIE,WINNER \?CCL3
+	EQUAL?	PRSA,V?TELL-ABOUT \?CCL6
+	EQUAL?	PRSO,ME \?CCL6
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,EDDIE,PRSI
+	SET	'WINNER,EDDIE
+	RTRUE	
+?CCL6:	EQUAL?	PRSA,V?HELLO \?CCL10
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?HELLO,EDDIE
+	SET	'WINNER,EDDIE
+	RTRUE	
+?CCL10:	EQUAL?	PRSA,V?WHAT \?CCL12
+	EQUAL?	PRSO,OBJECT-OF-GAME \?CCL12
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,EDDIE,OBJECT-OF-GAME
+	SET	'WINNER,EDDIE
+	RTRUE	
+?CCL12:	EQUAL?	PRSA,V?LAMP-ON \?CCL16
+	EQUAL?	PRSO,SPARE-DRIVE,MAIN-DRIVE \?CCL16
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?PRG24
+	PRINTI	"""Sorry,"
+	PRINT	ENGAGED
+	PRINTD	NUTRIMAT
+	PRINTR	". I can't do everything, you know."""
+?PRG24:	PRINTI	"""Sorry, current course for"
+	PRINT	LOST-PLANET
+	PRINTI	" can be countermanded only by "
+	PRINTD	ZAPHOD
+	PRINTR	"."""
+?CCL16:	EQUAL?	PRSA,V?OPEN,V?REPAIR \?CCL27
+	EQUAL?	PRSO,HATCH \?CCL27
+	ZERO?	LANDED /?CCL27
+	PRINTR	"""Not until I completely check out the safety of this planet. Please wait approximately fourteen years. In the meantime, have you brushed your teeth lately?"""
+?CCL27:	EQUAL?	PRSA,V?YES \?CCL34
+	EQUAL?	AWAITING-REPLY,18 \?CCL34
+	CALL1	V-YES
+	RSTACK	
+?CCL34:	EQUAL?	PRSA,V?NO \?CCL38
+	EQUAL?	AWAITING-REPLY,18 \?CCL38
+	CALL1	V-NO
+	RSTACK	
+?CCL38:	SET	'AWAITING-REPLY,18
+	CALL	QUEUE,I-REPLY,2
+	PUT	STACK,0,1
+	PRINTI	"Eddie sighs deeply. ""I can't talk right now. Do you know how difficult it is to pilot a ship as complicated as this one?"""
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?LAMP-OFF \?CCL44
+	PRINTR	"You don't know how (fortunately)."
+?CCL44:	EQUAL?	PRSA,V?ASK-ABOUT \FALSE
+	EQUAL?	PRSI,OBJECT-OF-GAME \FALSE
+	SET	'AWAITING-REPLY,19
+	CALL	QUEUE,I-REPLY,2
+	PUT	STACK,0,1
+	PRINTI	"""To pilot "
+	PRINTD	HEART-OF-GOLD
+	PRINTI	", process data requests from the "
+	PRINTD	NUTRIMAT
+	PRINTR	" and keep the crew healthy. Read your manual! How do you expect to get anywhere in life? But don't read unless there's enough light."""
+
+
+	.FUNCT	LARGE-RECEPTACLE-F
+	ZERO?	DRIVE-TO-CONTROLS /FALSE
+	EQUAL?	PRSA,V?EXAMINE \FALSE
+	PRINTI	"A "
+	PRINTD	SPARE-DRIVE
+	PRINTR	" is plugged into the large receptacle."
+
+
+	.FUNCT	ZAPHOD-F
+	EQUAL?	IDENTITY-FLAG,ZAPHOD \?CCL3
+	EQUAL?	PRSO,PHIL,ZAPHOD \?CCL6
+	ICALL	PERFORM,PRSA,ME,PRSI
+	RTRUE	
+?CCL6:	ICALL	PERFORM,PRSA,PRSO,ME
+	RTRUE	
+?CCL3:	EQUAL?	WINNER,ZAPHOD \?CCL8
+	EQUAL?	PRSA,V?TELL-ABOUT \?CCL11
+	EQUAL?	PRSO,ME \?CCL11
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,ZAPHOD,PRSI
+	SET	'WINNER,ZAPHOD
+	RTRUE	
+?CCL11:	EQUAL?	PRSA,V?HELLO \?CCL15
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?HELLO,ZAPHOD
+	SET	'WINNER,ZAPHOD
+	RTRUE	
+?CCL15:	EQUAL?	PRSA,V?WHAT \?PRG22
+	EQUAL?	PRSO,OBJECT-OF-GAME \?PRG22
+	PRINT	ASK-ABOUT-OBJECT
+	CRLF	
+	RTRUE	
+?PRG22:	PRINTI	"""Shut up, Earthman."""
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL8:	EQUAL?	IDENTITY-FLAG,TRILLIAN \?CCL25
+	EQUAL?	PRSI,PHIL \?CCL28
+	EQUAL?	PRSA,V?GIVE,V?SHOW \?CCL28
+	ICALL	PERFORM,V?HELLO,PHIL
+	RTRUE	
+?CCL28:	EQUAL?	PRSA,V?TELL,V?HELLO,V?SGIVE /?PRD34
+	EQUAL?	PRSA,V?ASK-FOR,V?ASK-ABOUT \?CCL32
+?PRD34:	EQUAL?	PRSO,PHIL \?CCL32
+	IN?	PHIL,HERE /?CND37
+	PRINTR	"Phil's not here anymore!"
+?CND37:	FSET?	JACKET-FLUFF,TRYTAKEBIT /?PRG43
+	CALL	QUEUE,I-ZAPHOD,3
+	PUT	STACK,0,1
+?PRG43:	PRINTI	"Phil must not have noticed you, because he just moved into the "
+	EQUAL?	HERE,LIVING-ROOM \?CCL47
+	MOVE	PHIL,DINING-ROOM
+	MOVE	CAGE,DINING-ROOM
+	PRINTD	DINING-ROOM
+	JUMP	?PRG56
+?CCL47:	EQUAL?	HERE,DINING-ROOM \?CCL51
+	MOVE	PHIL,KITCHEN
+	MOVE	CAGE,KITCHEN
+	PRINTD	KITCHEN
+	JUMP	?PRG56
+?CCL51:	MOVE	PHIL,LIVING-ROOM
+	MOVE	CAGE,LIVING-ROOM
+	PRINTD	LIVING-ROOM
+?PRG56:	PRINTC	46
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL32:	EQUAL?	PRSA,V?EXAMINE \?CCL59
+	PRINTR	"He is very attractive, if a little weird, and has a slight otherworldly look. You suspect he's a party crasher, an impression reinforced by his inappropriate garb; he seems clothed for a fancy dress party or something, because he has what appears to be a large birdcage on his shoulder with a black drape over it. The bird inside must be asleep, because you can hear snoring coming from inside it."
+?CCL59:	EQUAL?	PRSA,V?PICK-UP \FALSE
+	PRINTR	"You're not that kind of girl."
+?CCL25:	EQUAL?	PRSA,V?EXAMINE \?CCL67
+	PRINTR	"Zaphod has two heads."
+?CCL67:	EQUAL?	PRSA,V?FOLLOW \?CCL71
+	EQUAL?	FOLLOW-FLAG,3 \?CCL74
+	CALL2	DO-WALK,P?WEST
+	RSTACK	
+?CCL74:	EQUAL?	FOLLOW-FLAG,6 \FALSE
+	CALL2	DO-WALK,P?EAST
+	RSTACK	
+?CCL71:	EQUAL?	PRSA,V?ASK-ABOUT \FALSE
+	EQUAL?	PRSI,OBJECT-OF-GAME \FALSE
+	PRINT	ASK-ABOUT-OBJECT
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	I-ZAPHOD
+	ZERO?	ITEM-DROPPED-AT-PARTY /?CCL3
+	CALL	QUEUE,I-ZAPHOD,3
+	PUT	STACK,0,1
+	CALL2	RUNNING?,I-HOSTESS
+	ZERO?	STACK /FALSE
+	MOVE	PHIL,HERE
+	MOVE	CAGE,HERE
+	CRLF	
+	PRINTR	"Out of the corner of your eye, you see Phil leering at you. He starts to approach, but then notices the hostess with you and veers away."
+?CCL3:	ADD	SCORE,25 >SCORE
+	FSET	LIVING-ROOM,REVISITBIT
+	FSET	HOSTESS,NDESCBIT
+	CRLF	
+	ICALL2	JIGS-UP,STR?15
+	RTRUE	
+
+
+	.FUNCT	TRILLIAN-F
+	EQUAL?	IDENTITY-FLAG,TRILLIAN \?CCL3
+	EQUAL?	TRILLIAN,PRSO \?CCL6
+	ICALL	PERFORM,PRSA,ME,PRSI
+	RTRUE	
+?CCL6:	ICALL	PERFORM,PRSA,PRSO,ME
+	RTRUE	
+?CCL3:	EQUAL?	TRILLIAN,WINNER \?CCL8
+	EQUAL?	PRSA,V?TELL-ABOUT \?CCL11
+	EQUAL?	PRSO,ME \?CCL11
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?ASK-ABOUT,TRILLIAN,PRSI
+	SET	'WINNER,TRILLIAN
+	RTRUE	
+?CCL11:	EQUAL?	PRSA,V?HELLO \?CCL15
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?HELLO,TRILLIAN
+	SET	'WINNER,TRILLIAN
+	RTRUE	
+?CCL15:	EQUAL?	PRSA,V?WHAT \?CCL17
+	EQUAL?	PRSO,OBJECT-OF-GAME \?CCL17
+	PRINT	ASK-ABOUT-OBJECT
+	CRLF	
+	RTRUE	
+?CCL17:	EQUAL?	PRSA,V?SHOOT \?PRD25
+	IN?	BLASTER,TRILLIAN \?PRD25
+	EQUAL?	PRSO,RIFLES /?CTR22
+?PRD25:	EQUAL?	PRSA,V?SSHOOT \?CCL23
+	IN?	BLASTER,TRILLIAN \?CCL23
+	EQUAL?	PRSI,RIFLES \?CCL23
+?CTR22:	MOVE	BLASTER,PROTAGONIST
+	SET	'WINNER,PROTAGONIST
+	ICALL	PERFORM,V?SHOOT,RIFLES,BLASTER
+	SET	'WINNER,TRILLIAN
+	MOVE	BLASTER,TRILLIAN
+	RTRUE	
+?CCL23:	EQUAL?	IDENTITY-FLAG,ZAPHOD \?PRG36
+	PRINTI	"""Shut up, you jerk!"" hisses "
+	PRINTD	TRILLIAN
+	PRINTI	". ""Just get on with the plan."""
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?PRG36:	PRINTD	TRILLIAN
+	PRINTI	" smiles disinterestedly at you and looks away."
+	CRLF	
+	CALL1	FUCKING-CLEAR
+	RSTACK	
+?CCL8:	EQUAL?	PRSA,V?SHOOT \?CCL39
+	EQUAL?	PRSI,BLASTER \?CCL39
+	PRINTI	"How heartless! Fortunately, justice prevails as the guards"
+	ICALL1	GUARD-DEATH
+	RTRUE	
+?CCL39:	EQUAL?	PRSA,V?ASK-ABOUT \?CCL45
+	EQUAL?	PRSI,OBJECT-OF-GAME \?CCL45
+	PRINT	ASK-ABOUT-OBJECT
+	CRLF	
+	RTRUE	
+?CCL45:	EQUAL?	FOLLOW-FLAG,3 \?CCL51
+	EQUAL?	PRSA,V?FOLLOW \?CCL51
+	CALL2	DO-WALK,P?WEST
+	RSTACK	
+?CCL51:	EQUAL?	PRSA,V?EXAMINE \FALSE
+	IN?	BLASTER,TRILLIAN \FALSE
+	PRINTR	"She's holding a blaster at your head."
+
+
+	.FUNCT	HANDBAG-F
+	EQUAL?	PRSA,V?THROW,V?DROP \?CCL3
+	EQUAL?	IDENTITY-FLAG,TRILLIAN \?CCL3
+	CALL1	DROP-AT-PARTY
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?TAKE \FALSE
+	IN?	HANDBAG,TRILLIAN \FALSE
+	PRINTD	TRILLIAN
+	PRINTR	" pulls it away."
+
+
+	.FUNCT	FORE-CORRIDOR-F,RARG
+	EQUAL?	RARG,M-LOOK \FALSE
+	PRINTI	"This is one end of a short corridor that continues "
+	EQUAL?	HERE,FORE-CORRIDOR \?PRG11
+	PRINTI	"aft"
+	JUMP	?PRG13
+?PRG11:	PRINTI	"fore"
+?PRG13:	PRINTI	" along the main deck of "
+	PRINTD	HEART-OF-GOLD
+	PRINTI	". Doorways lead to "
+	EQUAL?	HERE,FORE-CORRIDOR \?PRG20
+	PRINTI	"fore"
+	JUMP	?PRG22
+?PRG20:	PRINTI	"aft"
+?PRG22:	PRINTI	" and port. In addition, a gangway leads "
+	EQUAL?	HERE,FORE-CORRIDOR \?PRG29
+	PRINTI	"up"
+	JUMP	?PRG31
+?PRG29:	PRINTI	"down"
+?PRG31:	PRINTR	"ward."
+
+
+	.FUNCT	AFT-CORRIDOR-F,RARG
+	EQUAL?	RARG,M-ENTER \?CCL3
+	FCLEAR	HATCH,DOORBIT
+	RFALSE	
+?CCL3:	EQUAL?	RARG,M-LOOK \FALSE
+	CALL2	FORE-CORRIDOR-F,M-LOOK
+	RSTACK	
+
+
+	.FUNCT	I-REPLY
+	SET	'AWAITING-REPLY,FALSE-VALUE
+	RFALSE	
+
+
+	.FUNCT	ENGINE-ROOM-ENTER-F
+	INC	'ARGUMENT-COUNTER
+	EQUAL?	ARGUMENT-COUNTER,1 \?CCL3
+	SET	'AWAITING-REPLY,1
+	CALL	QUEUE,I-ARGUMENT,2
+	PUT	STACK,0,1
+	PRINTI	"That entrance leads to the"
+	PRINT	IID
+	PRINTI	" chamber. It's supposed to be a terribly dangerous area of the ship. Are you sure you want to go in there?"
+	CRLF	
+	RFALSE	
+?CCL3:	EQUAL?	ARGUMENT-COUNTER,2 \?CCL7
+	SET	'AWAITING-REPLY,1
+	CALL	QUEUE,I-ARGUMENT,2
+	PUT	STACK,0,1
+	PRINTI	"Absolutely sure?"
+	CRLF	
+	RFALSE	
+?CCL7:	EQUAL?	ARGUMENT-COUNTER,3 \?CCL11
+	CALL2	INT,I-ARGUMENT
+	PUT	STACK,0,0
+	SET	'AWAITING-REPLY,100
+	CALL	QUEUE,I-REPLY,2
+	PUT	STACK,0,1
+	PRINTI	"I can tell you don't want to really. You stride away with a spring in your step, wisely leaving the Drive Chamber safely behind you. Telegrams arrive from well-wishers in all corners of the Galaxy congratulating you on your prudence and wisdom, cheering you up immensely."
+	CRLF	
+	RFALSE	
+?CCL11:	EQUAL?	ARGUMENT-COUNTER,4 \?CCL15
+	CALL	QUEUE,I-ARGUMENT,2
+	PUT	STACK,0,1
+	CALL	QUEUE,I-REPLY,2
+	PUT	STACK,0,1
+	SET	'AWAITING-REPLY,2
+	PRINTI	"What? You're joking, of course. Can I ask you to reconsider?"
+	CRLF	
+	RFALSE	
+?CCL15:	GRTR?	ARGUMENT-COUNTER,4 \FALSE
+	CALL2	INT,I-ARGUMENT
+	PUT	STACK,0,0
+	SET	'AWAITING-REPLY,FALSE-VALUE
+	RETURN	ENGINE-ROOM
+
+
+	.FUNCT	I-ARGUMENT
+	EQUAL?	PRSA,V?NO \?PRD5
+	EQUAL?	AWAITING-REPLY,1 /?CND1
+?PRD5:	EQUAL?	PRSA,V?YES \?CCL3
+	EQUAL?	AWAITING-REPLY,2 /?CND1
+?CCL3:	CRLF	
+?CND1:	SET	'AWAITING-REPLY,FALSE-VALUE
+	SET	'ARGUMENT-COUNTER,0
+	PRINTR	"I knew you weren't serious about entering that extremely dangerous area."
+
+
+	.FUNCT	ENTRY-BAY-F,RARG
+	EQUAL?	RARG,M-ENTER \FALSE
+	SET	'IDENTITY-FLAG,ARTHUR
+	MOVE	HATCH,GLOBAL-OBJECTS
+	MOVE	MECHANISM,GLOBAL-OBJECTS
+	MOVE	ARTHUR,GLOBAL-OBJECTS
+	FSET?	ENTRY-BAY,NDESCBIT \?CCL6
+	MOVE	FORD,LOCAL-GLOBALS
+	MOVE	TRILLIAN,LOCAL-GLOBALS
+	MOVE	ZAPHOD,LOCAL-GLOBALS
+	RFALSE	
+?CCL6:	FSET	ENTRY-BAY,NDESCBIT
+	CALL	QUEUE,I-FORD,1
+	PUT	STACK,0,1
+	RFALSE	
+
+
+	.FUNCT	SALES-BROCHURE-F
+	EQUAL?	PRSA,V?READ \FALSE
+	PRINTI	"""Equipped with a sensational breakthrough in Improbability Physics, "
+	PRINTD	HEART-OF-GOLD
+	PRINTI	" will make you the envy of every major government. When the ship's"
+	PRINT	IID
+	PRINTI	" is activated, "
+	PRINTD	HEART-OF-GOLD
+	PRINTI	" passes through every point in the universe simultaneously, making travel to any single location a breeze!""
+
+The "
+	PRINTD	SALES-BROCHURE
+	PRINTI	" goes on to describe the ship's complement of "
+	PRINT	SCC
+	PRINTI	"-designed robots and computers, all equipped with GPP ("
+	PRINT	GPP
+	PRINTR	")."
+
+
+	.FUNCT	ENGINE-ROOM-F,RARG
+	EQUAL?	RARG,M-LOOK \?CCL3
+	INC	'LOOK-COUNTER
+	EQUAL?	LOOK-COUNTER,1 \?CCL6
+	PRINTI	"You're in the"
+	PRINT	IID
+	PRINTR	" chamber. Nothing happens; there is nothing to see."
+?CCL6:	EQUAL?	LOOK-COUNTER,2 \?CCL10
+	PRINTR	"I mean it! There's nothing to see here!"
+?CCL10:	GRTR?	LOOK-COUNTER,2 \FALSE
+	EQUAL?	LOOK-COUNTER,3 \?PRG19
+	MOVE	MAIN-DRIVE,GLOBAL-OBJECTS
+	MOVE	SPARE-DRIVE,HERE
+	MOVE	PLIERS,HERE
+	MOVE	RASP,HERE
+	ADD	SCORE,25 >SCORE
+	PRINTI	"Okay, okay, there are a FEW things to see here. "
+?PRG19:	PRINTI	"This is the room that houses the powerful In"
+	PRINT	FIG
+	PRINTI	" that drives "
+	PRINTD	HEART-OF-GOLD
+	PRINTR	". An exit lies fore of here."
+?CCL3:	EQUAL?	RARG,M-END \FALSE
+	EQUAL?	LOOK-COUNTER,3 \FALSE
+	SET	'LOOK-COUNTER,4
+	CRLF	
+	PRINTR	"(Footnote 10)"
+
+
+	.FUNCT	MAIN-DRIVE-F
+	EQUAL?	PRSA,V?RUB,V?EXAMINE \?CCL3
+	EQUAL?	HERE,ENGINE-ROOM /?CCL3
+	CALL2	CANT-SEE,MAIN-DRIVE
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?LAMP-ON \FALSE
+	PRINTI	"Only "
+	PRINTD	EDDIE
+	PRINTR	" can activate the drive."
+
+
+	.FUNCT	SPARE-DRIVE-F
+	EQUAL?	PRSA,V?EXAMINE \?CCL3
+	PRINTI	"The "
+	PRINTD	SPARE-DRIVE
+	PRINTI	" has a switch"
+	IN?	LARGE-PLUG,SPARE-DRIVE \?PRG18
+	PRINTI	", a long cord "
+	ZERO?	DRIVE-TO-CONTROLS /?PRG16
+	PRINTI	"plugged into the control console,"
+	JUMP	?PRG20
+?PRG16:	PRINTI	"ending with a "
+	PRINTD	LARGE-PLUG
+	PRINTC	44
+	JUMP	?PRG20
+?PRG18:	PRINTI	", a fused spot where a long cord once began,"
+?PRG20:	PRINTI	" and a short cord "
+	ZERO?	DRIVE-TO-PLOTTER /?PRG27
+	PRINTI	"plugged into the "
+	PRINTD	PLOTTER
+	JUMP	?PRG29
+?PRG27:	PRINTI	"ending with a "
+	PRINTD	SMALL-PLUG
+?PRG29:	PRINTC	46
+	ICALL1	FINE-PRODUCT
+	CRLF	
+	RTRUE	
+?CCL3:	EQUAL?	PRSA,V?TIE,V?PLUG \?PRD34
+	EQUAL?	PRSO,SPARE-DRIVE /?CTR31
+?PRD34:	EQUAL?	PRSA,V?PUT \?CCL32
+	EQUAL?	PRSI,SMALL-RECEPTACLE,LARGE-RECEPTACLE \?CCL32
+?CTR31:	IN?	LARGE-PLUG,SPARE-DRIVE \?CCL41
+	PRINTI	"In case you hadn't noticed, there are two connections leading from the "
+	PRINTD	SPARE-DRIVE
+	PRINTR	"..."
+?CCL41:	ICALL	PERFORM,V?PLUG,SMALL-PLUG,PRSI
+	RTRUE	
+?CCL32:	EQUAL?	PRSA,V?UNPLUG \?CCL45
+	ZERO?	DRIVE-TO-CONTROLS \?CTR47
+	ZERO?	DRIVE-TO-PLOTTER /?PRG53
+?CTR47:	SET	'DRIVE-TO-PLOTTER,FALSE-VALUE
+	SET	'DRIVE-TO-CONTROLS,FALSE-VALUE
+	FCLEAR	SPARE-DRIVE,NDESCBIT
+	PRINTR	"Done."
+?PRG53:	PRINT	NOT-PLUGGED
+	CRLF	
+	RTRUE	
+?CCL45:	EQUAL?	PRSA,V?LAMP-ON \?CCL56
+	ICALL	PERFORM,V?LAMP-ON,SWITCH
+	RTRUE	
+?CCL56:	EQUAL?	PRSA,V?CLOSE,V?OPEN \FALSE
+	CALL1	V-CARVE
+	RSTACK	
+
+
+	.FUNCT	LARGE-PLUG-F
+	EQUAL?	PRSA,V?TIE,V?PUT,V?PLUG \?CCL3
+	EQUAL?	PRSI,CONTROLS,LARGE-RECEPTACLE \?CCL3
+	ZERO?	DRIVE-TO-CONTROLS /?CND6
+	PRINTR	"It already is!"
+?CND6:	SET	'DRIVE-TO-CONTROLS,TRUE-VALUE
+	FSET	SPARE-DRIVE,NDESCBIT
+	PRINTI	"Plugged."
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK \?CND12
+	PRINTC	32
+	PRINTD	EDDIE
+	PRINTI	" says, ""You shouldn't be playing around with a "
+	PRINTD	SPARE-DRIVE
+	PRINTI	". Who knows where it's been?"""
+	CRLF	
+	CRLF	
+	PRINT	ANNOUNCEMENT
+	PRINTD	EDDIE
+	PRINTI	". Someone has connected a "
+	PRINTD	SPARE-DRIVE
+	PRINTI	" to"
+	PRINT	MOP
+	PRINTR	". Better be an emergency, that's all I have to say."""
+?CND12:	CRLF	
+	RTRUE	
+?CCL3:	EQUAL?	PRSA,V?TAKE \?CCL17
+	EQUAL?	PRSI,CONTROLS \?CCL17
+	ICALL	PERFORM,V?UNPLUG,LARGE-PLUG
+	RTRUE	
+?CCL17:	EQUAL?	PRSA,V?REMOVE,V?UNPLUG \FALSE
+	ZERO?	DRIVE-TO-CONTROLS /?PRG27
+	SET	'DRIVE-TO-CONTROLS,FALSE-VALUE
+	FCLEAR	SPARE-DRIVE,NDESCBIT
+	PRINTR	"Done."
+?PRG27:	PRINT	NOT-PLUGGED
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	SMALL-PLUG-F
+	EQUAL?	PRSA,V?TIE,V?PUT,V?PLUG \?CCL3
+	EQUAL?	PRSI,PLOTTER,SMALL-RECEPTACLE \?CCL3
+	ZERO?	DRIVE-TO-PLOTTER /?CND6
+	PRINTR	"It already is!"
+?CND6:	SET	'DRIVE-TO-PLOTTER,TRUE-VALUE
+	PRINTR	"Plugged."
+?CCL3:	EQUAL?	PRSA,V?TAKE \?CCL13
+	EQUAL?	PRSI,PLOTTER \?CCL13
+	ICALL	PERFORM,V?UNPLUG,SMALL-PLUG
+	RTRUE	
+?CCL13:	EQUAL?	PRSA,V?REMOVE,V?UNPLUG \FALSE
+	ZERO?	DRIVE-TO-PLOTTER /?PRG23
+	SET	'DRIVE-TO-PLOTTER,FALSE-VALUE
+	PRINTR	"Done."
+?PRG23:	PRINT	NOT-PLUGGED
+	CRLF	
+	RTRUE	
+
+
+	.FUNCT	SWITCH-F
+	EQUAL?	PRSA,V?PUSH,V?TURN,V?LAMP-ON /?CCL3
+	EQUAL?	PRSA,V?THROW,V?MOVE \FALSE
+?CCL3:	ZERO?	DRIVE-TO-PLOTTER /?PRG48
+	ZERO?	BROWNIAN-SOURCE /?PRG48
+	MOVE	SPARE-DRIVE,HERE
+	MOVE	PLOTTER,HERE
+	MOVE	BROWNIAN-SOURCE,HERE
+	EQUAL?	BROWNIAN-SOURCE,TEA \?CND11
+	SET	'HOLDING-NO-TEA,TRUE-VALUE
+?CND11:	ZERO?	DRIVE-TO-CONTROLS /?CCL15
+	PRINTI	"As you flip the switch, sparks fly from the large receptacle. "
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?PRG25
+	GRTR?	TEA-COUNTER,6 \?PRG25
+	PRINTI	"""My new control console!"" wails "
+	PRINTD	EDDIE
+	PRINTI	". ""This is the thanks I get"
+	JUMP	?PRG27
+?PRG25:	PRINTI	"""Now look what you've done. You've destroyed"
+	PRINT	MOP
+	PRINTI	". Don't you know it's only for emergencies"
+?PRG27:	PRINTI	"?"""
+	CRLF	
+	CRLF	
+	SET	'DRIVE-TO-CONTROLS,FALSE-VALUE
+	FCLEAR	SPARE-DRIVE,NDESCBIT
+	MOVE	LARGE-PLUG,LOCAL-GLOBALS
+	MOVE	LARGE-RECEPTACLE,LOCAL-GLOBALS
+	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?CCL31
+	GRTR?	TEA-COUNTER,6 \?CCL31
+	MOVE	TEA,SLOT
+	CALL2	INT,I-TEA
+	PUT	STACK,0,0
+	CALL	QUEUE,I-LANDING,24
+	PUT	STACK,0,1
+	SET	'FOLLOW-FLAG,3
+	CALL	QUEUE,I-FOLLOW,2
+	PUT	STACK,0,1
+	PRINTI	"The universe goes crazy for a moment."
+	CRLF	
+	CRLF	
+	PRINT	ANNOUNCEMENT
+	PRINTD	EDDIE
+	PRINTI	". The missiles have turned into a sperm whale"
+	ICALL2	FACTOR,STR?18
+	PRINTI	" The whale is currently plummeting toward"
+	PRINT	LOST-PLANET
+	PRINTI	". I hope this will teach you to listen to me when I say that legendary lost planets can be dangerous. I am proceeding with the preset landing instructions.""
+
+Ford, Zaphod, and "
+	PRINTD	TRILLIAN
+	PRINTR	" saunter by on their way back to the sauna. ""Good work, kid,"" says Zaphod, slamming you on the back."
+?CCL31:	CALL2	INT,I-TEA
+	PUT	STACK,0,0
+	SUB	SCORE,30 >SCORE
+	PRINT	ANNOUNCEMENT
+	PRINTD	EDDIE
+	PRINTI	". Someone has activated a "
+	PRINTD	SPARE-DRIVE
+	PRINTI	" at"
+	PRINT	MOP
+	PRINTI	", moving us 8 billion parsecs away from our destination, adding seven weeks to our trip. As if that isn't bad enough, all 300 members of the Fronurbdi Planetary Senate appeared in the "
+	PRINTD	HATCHWAY
+	ICALL2	FACTOR,STR?19
+	PRINTR	" I'm flushing them into space now, but who knows what sort of germs they've dragged into the ship? Everyone should take extra vitamins today."""
+?CCL15:	CALL2	RUNNING?,I-TEA
+	ZERO?	STACK /?CCL43
+	SET	'DREAMING,TRUE-VALUE
+	CALL2	INT,I-TEA
+	PUT	STACK,0,0
+	ICALL2	JIGS-UP,STR?20
+	RTRUE	
+?CCL43:	EQUAL?	BROWNIAN-SOURCE,TEA \?CND44
+	SET	'DARK-CONTROLLED,TRUE-VALUE
+?CND44:	MOVE	HATCH,LOCAL-GLOBALS
+	MOVE	MECHANISM,LOCAL-GLOBALS
+	CALL2	PICK-ONE,DARK-ENTRANCES
+	PRINT	STACK
+	CRLF	
+	CRLF	
+	ICALL2	GOTO,DARK
+	RTRUE	
+?PRG48:	PRINTR	"Nothing happens."
+
+
+	.FUNCT	PLOTTER-DESCFCN,X
+	PRINTI	"Lying on the deck is a plotter"
+	ZERO?	DRIVE-TO-PLOTTER /?PRG8
+	PRINTI	" connected to a "
+	PRINTD	SPARE-DRIVE
+	PRINTC	46
+	JUMP	?CND3
+?PRG8:	PRINTC	46
+?CND3:	ZERO?	BROWNIAN-SOURCE /?CND10
+	PRINTI	" The plotter's "
+	PRINTD	DANGLY-BIT
+	PRINTI	" is submerged in "
+	PRINTD	BROWNIAN-SOURCE
+	PRINTR	"."
+?CND10:	CRLF	
+	RTRUE	
+
+
+	.FUNCT	PLOTTER-F
+	EQUAL?	PRSA,V?EXAMINE \?CCL3
+	PRINTI	"The "
+	PRINTD	PRSO
+	PRINTI	" has a "
+	PRINTD	SMALL-RECEPTACLE
+	PRINTI	" and a "
+	PRINTD	DANGLY-BIT
+	ZERO?	BROWNIAN-SOURCE /?CND6
+	PRINTI	" which is sitting in "
+	PRINTD	BROWNIAN-SOURCE
+?CND6:	ZERO?	DRIVE-TO-PLOTTER /?PRG14
+	PRINTI	". The short cord from the "
+	PRINTD	SPARE-DRIVE
+	PRINTI	" is plugged in the receptacle"
+?PRG14:	PRINTC	46
+	ICALL1	FINE-PRODUCT
+	CRLF	
+	RTRUE	
+?CCL3:	EQUAL?	PRSA,V?PLUG \?CCL17
+	EQUAL?	PRSI,SPARE-DRIVE \?CCL17
+	ICALL	PERFORM,V?PLUG,SPARE-DRIVE,PLOTTER
+	RTRUE	
+?CCL17:	EQUAL?	PRSA,V?UNPLUG \?CCL21
+	ZERO?	DRIVE-TO-PLOTTER /?PRG27
+	SET	'DRIVE-TO-PLOTTER,FALSE-VALUE
+	PRINTR	"Unplugged."
+?PRG27:	PRINT	NOT-PLUGGED
+	CRLF	
+	RTRUE	
+?CCL21:	EQUAL?	PRSA,V?CLOSE,V?OPEN \FALSE
+	CALL1	V-CARVE
+	RSTACK	
+
+
+	.FUNCT	DANGLY-BIT-F
+	EQUAL?	PRSA,V?PUT \?CCL3
+	EQUAL?	PRSI,TEA,SUBSTITUTE \?CCL3
+	ZERO?	BROWNIAN-SOURCE /?CND6
+	PRINTI	"But the "
+	PRINTD	DANGLY-BIT
+	PRINTI	" is already in"
+	ICALL	ARTICLE,BROWNIAN-SOURCE,TRUE-VALUE
+	PRINTR	"!"
+?CND6:	SET	'BROWNIAN-SOURCE,PRSI
+	EQUAL?	PRSI,TEA \?PRG16
+	ZERO?	CARELESS-WORDS-FLAG \?PRG16
+	SET	'CARELESS-WORDS-FLAG,TRUE-VALUE
+	ICALL2	SAVE-INPUT,FIRST-BUFFER
+	CALL	QUEUE,I-CARELESS-WORDS,3
+	PUT	STACK,0,1
+?PRG16:	PRINTR	"Done."
+?CCL3:	EQUAL?	PRSA,V?EXAMINE \?CCL19
+	ZERO?	BROWNIAN-SOURCE /?CCL19
+	PRINTI	"The "
+	PRINTD	DANGLY-BIT
+	PRINTI	" is suspended in the cup of "
+	PRINTD	BROWNIAN-SOURCE
+	PRINTR	"."
+?CCL19:	EQUAL?	PRSA,V?REMOVE \FALSE
+	ZERO?	BROWNIAN-SOURCE /FALSE
+	PRINTI	"The "
+	PRINTD	DANGLY-BIT
+	PRINTI	" is no longer suspended in"
+	ICALL	ARTICLE,BROWNIAN-SOURCE,TRUE-VALUE
+	PRINTC	46
+	CRLF	
+	SET	'BROWNIAN-SOURCE,FALSE-VALUE
+	RTRUE	
+
+
+	.FUNCT	HATCHWAY-F,RARG
+	EQUAL?	RARG,M-LOOK \?CCL3
+	PRINTI	"You are at the bottom of a gangway. A hatch below you is "
+	FSET?	HATCH,OPENBIT \?PRG11
+	PRINTI	"open"
+	JUMP	?PRG13
+?PRG11:	PRINTI	"closed"
+?PRG13:	PRINTR	". There is a small access space to starboard."
+?CCL3:	EQUAL?	RARG,M-ENTER \FALSE
+	FSET	HATCH,DOORBIT
+	RFALSE	
+
+
+	.FUNCT	ACCESS-SPACE-ENTER-F
+	CALL2	ACCESS-SPACE-LOOP,PROTAGONIST
+	GRTR?	STACK,1 \?CCL3
+	PRINTI	"That entrance is so narrow that you probably couldn't pass by holding anything. Well, maybe ONE thing."
+	CRLF	
+	RFALSE	
+?CCL3:	FCLEAR	HATCH,DOORBIT
+	RETURN	ACCESS-SPACE
+
+
+	.FUNCT	ACCESS-SPACE-LOOP,CONT,X,NUMBER
+	FIRST?	CONT >X /?PRG2
+?PRG2:	ZERO?	X \?CND4
+	RETURN	NUMBER
+?CND4:	FSET?	X,WORNBIT /?CND6
+	FSET?	X,INTEGRALBIT /?CND6
+	EQUAL?	X,BABEL-FISH /?CND6
+	INC	'NUMBER
+?CND6:	FIRST?	X \?CND11
+	CALL2	ACCESS-SPACE-LOOP,X
+	ADD	NUMBER,STACK >NUMBER
+?CND11:	NEXT?	X >X /?PRG2
+	JUMP	?PRG2
+
+
+	.FUNCT	HATCH-F
+	EQUAL?	HERE,HATCHWAY /?CCL3
+	EQUAL?	PRSA,V?EXAMINE,V?CLOSE,V?OPEN /?CTR2
+	EQUAL?	PRSA,V?RUB \?CCL3
+?CTR2:	CALL2	CANT-SEE,HATCH
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?THROUGH,V?OPEN \?CCL9
+	ZERO?	LANDED \?CCL9
+	PRINTR	"Loud sirens blare, fantastically bright red lights flash from all sides, and a soft female voice mentions that opening this hatch in space will evacuate the air from the ship."
+?CCL9:	EQUAL?	PRSA,V?THROUGH,V?OPEN \FALSE
+	FSET?	HATCH,OPENBIT /FALSE
+	PRINTR	"The hatch appears to be jammed shut."
+
+
+	.FUNCT	MECHANISM-F
+	EQUAL?	HERE,ACCESS-SPACE /?CCL3
+	EQUAL?	PRSA,V?RUB,V?SMELL,V?EXAMINE /?CTR2
+	EQUAL?	PRSA,V?REPAIR \?CCL3
+?CTR2:	CALL2	CANT-SEE,MECHANISM
+	RSTACK	
+?CCL3:	EQUAL?	PRSA,V?REPAIR \?CCL9
+	ICALL	PERFORM,V?REPAIR,HATCH
+	RTRUE	
+?CCL9:	EQUAL?	PRSA,V?EXAMINE \FALSE
+	PRINTR	"I don't even understand it, and I'm a computer!"
+
+
+	.FUNCT	ACCESS-SPACE-F,RARG
+	EQUAL?	RARG,M-LOOK \FALSE
+	PRINTI	"This tiny area, with an exit to port, is for working on the hatch "
+	PRINTD	MECHANISM
+	PRINTI	", which is vastly more complicated than your rather ordinary intelligence can comprehend. "
+	ICALL	PERFORM,V?EXAMINE,GROUND
+	RTRUE	
+
+
+	.FUNCT	MESH-PSEUDO
+	EQUAL?	PRSI,MESH \?CCL3
+	ICALL	PERFORM,PRSA,PRSO,GROUND
+	RTRUE	
+?CCL3:	ICALL	PERFORM,PRSA,GROUND,PRSI
+	RTRUE	
+
+
+	.FUNCT	RAMP-F,RARG
+	EQUAL?	RARG,M-ENTER \?CCL3
+	ICALL1	INIT-STATUS-LINE
+	ICALL1	UPDATE-STATUS-LINE
+	PRINTI	"You step onto the landing ramp leading down toward the surface of"
+	PRINT	LOST-PLANET
+	PRINTI	". "
+	PRINT	ANNOUNCEMENT
+	PRINTD	EDDIE
+	PRINTI	". Someone is leaving the ship on a strange planet without wrapping up all nice and warm. It'll all end in tears, I just know it..."" The voice fades behind you."
+	CRLF	
+	CRLF	
+	RTRUE	
+?CCL3:	EQUAL?	RARG,M-END \FALSE
+	CRLF	
+	PRINTI	"Slowly, nervously, you step downwards, the cold thin air rasping in your lungs. You set one single foot on the ancient dust -- and almost instantly the most incredible adventure starts which you'll have to buy the next game to find out about."
+	CRLF	
+	CRLF	
+	CRLF	
+	PRINTI	"By the way, there WAS a causal relationship between your taking the "
+	PRINTD	TOOTHBRUSH
+	PRINTI	" and the tree collapsing at the very beginning of the game. We apologise for this slight inaccuracy."
+	CRLF	
+	CALL1	FINISH
+	RSTACK	
+
+	.ENDI

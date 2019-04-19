@@ -1,0 +1,251 @@
+;"HOW TO TURN A ZIP GAME INTO AN XZIP GAME"
+
+;"ADD TO LOAD FILE"
+
+<VERSION XZIP>
+<SETG PLUS-MODE T>
+<SETG NEW-VOC? T>
+<FREQUENT-WORDS?>
+
+;"move directions to load file just before adding new files"
+;"status line stuff - add to GLOBALS file"
+
+<CONSTANT S-TEXT 0>
+<CONSTANT S-WINDOW 1>
+
+<CONSTANT H-NORMAL 0>
+<CONSTANT H-INVERSE 1>
+<CONSTANT H-BOLD 2>
+<CONSTANT H-ITALIC 4>
+
+<CONSTANT D-SCREEN-ON 1>
+<CONSTANT D-SCREEN-OFF -1>
+<CONSTANT D-PRINTER-ON 2>
+<CONSTANT D-PRINTER-OFF -2>
+<CONSTANT D-TABLE-ON 3>
+<CONSTANT D-TABLE-OFF -3>
+<CONSTANT D-RECORD-ON 4>
+<CONSTANT D-RECORD-OFF -4>
+
+<GLOBAL HOST:NUMBER 0> "Host machine."
+<GLOBAL WIDTH:NUMBER 0> "Width of screen in chars."
+
+;"put in GO routine"
+<SETG HOST <LOWCORE INTID>>
+<SETG WIDTH <LOWCORE SCRH>>
+
+<ROUTINE INIT-STATUS-LINE ()
+	 <COND (<L? ,WIDTH 38>
+		<TELL "[Screen too narrow.]" CR>
+		<QUIT>)>
+	 <SETG CHEIGHT <LOWCORE (FWRD 1)>>
+	 <SETG OHERE <>>
+	 <SETG OLD-LEN 0>
+	 <SPLIT 1>
+	 <SCREEN ,S-WINDOW>
+	 <HLIGHT ,H-INVERSE>
+	 <CURSET 1 1>	 
+	 ;<ERASE 1> ;"This semi by Jeff"
+	 ;<PRINT-SPACES <LOWCORE SCRH>>
+	 <PRINT-SPACES ,WIDTH>
+	 <COND (<G? ,WIDTH 75>
+		<CURSET 1 51>
+		<TELL "Score:">
+		<CURSET 1 64>
+		<TELL "Moves:">)>
+	 <HLIGHT ,H-NORMAL>
+	 <SCREEN ,S-TEXT>
+	 <RTRUE>>
+
+<CONSTANT SL-TABLE:TABLE <ITABLE NONE 80>>	"status line constructed here"
+<GLOBAL OHERE:OBJECT <>>
+<GLOBAL OLD-LEN:NUMBER 0>
+
+<ROUTINE UPDATE-STATUS-LINE ()
+	 <SCREEN ,S-WINDOW>
+	 ;<BUFOUT <>>
+	 <HLIGHT ,H-NORMAL>
+	 <HLIGHT ,H-INVERSE>
+	 <COND (<NOT <EQUAL? ,HERE ,OHERE>>
+		<SETG OHERE ,HERE>
+		;<DIROUT ,D-SCREEN-OFF>	        ; "Screen off."
+		<DIROUT ,D-TABLE-ON ,SL-TABLE>  ; "Table on."
+		<SAY-HERE>
+		<DIROUT ,D-TABLE-OFF> 	        ; "Table off."
+		;<DIROUT ,D-SCREEN-ON>		; "Screen on."
+		<CURSET 1 2>
+		<PRINT-SPACES ,OLD-LEN>  ; "Erase old HERE desc"
+		<SETG OLD-LEN <GET ,SL-TABLE 0>> ;"Print new HERE desc."
+		<CURSET 1 2>
+		<SAY-HERE>)>
+	 <COND (<G? ,WIDTH 74>
+		<CURSET 1 58>
+		<TELL N ,SCORE " ">  ;"for 110 to 80 score bug"
+		<CURSET 1 71>
+		<TELL N ,MOVES>)
+	       (T
+		<DIROUT ,D-TABLE-ON ,SL-TABLE>
+		<TELL N ,SCORE "/" N ,MOVES " ">
+		<DIROUT ,D-TABLE-OFF>
+		<CURSET 1 <- ,WIDTH <+ <GET ,SL-TABLE 0> 1>>>
+		<TELL N ,SCORE "/" N ,MOVES " ">)>
+	 <HLIGHT ,H-NORMAL>
+	 <SCREEN ,S-TEXT>  ;"Back to main screen."
+	 <RTRUE>>
+
+<ROUTINE PRINT-SPACES (CNT)
+	 <REPEAT ()
+		 <COND (<L? <SET CNT <- .CNT 1>> 0>
+			<RETURN>)
+		       (T
+			<PRINTC 32>)>>>
+
+<ROUTINE SAY-HERE ()
+	 <COND (<ZERO? ,LIT?>
+		<TELL "Darkness">)
+	       (T
+		<TELL D ,HERE>
+	        <COND (<AND <G? ,WIDTH 74>
+			    <NOT <IN? ,PROTAGONIST ,HERE>>>
+		       <TELL ", in the " <LOC ,PROTAGONIST>>)>)>
+	 <RTRUE>>
+
+"To update the status line during the game - after all MOVE ,WINNER
+(or similar) statements add - also check LIT to NOT LIT cases and vice-versa,
+V-BOARD, V-DISEMBARK and wherever else the status line changes in special
+cases, e.g. LYING DOWN in HHGG"
+
+<SETG OHERE <>>
+
+;"parser replacements - replace old routine with new"
+
+<CONSTANT P-PSOFF %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 6) (T 4)>>
+			"Offset to parts of speech byte"
+<CONSTANT P-P1OFF %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 7) (T 5)>>
+			"Offset to first part of speech"
+
+"in ROUTINE PARSER when printing prompt replace with:"
+
+%<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE>
+		       '<PROG ()
+			      <UPDATE-STATUS-LINE>
+			      <TELL ">">>)
+		      (T
+		       '<TELL ">">)>
+	       <PUTB ,P-INBUF 1 0>
+	       <READ ,P-INBUF ,P-LEXV>
+
+;"replace in PARSER"
+
+<ROUTINE THIS-IT? (OBJ TBL "AUX" SYNS)
+ <COND (<FSET? .OBJ ,INVISIBLE> <RFALSE>)
+       (<AND ,P-NAM
+	     <NOT <ZMEMQ ,P-NAM
+			 <SET SYNS <GETPT .OBJ ,P?SYNONYM>>
+			 <- </ <PTSIZE .SYNS> 2> 1>>>>
+	<RFALSE>)
+       (<AND ,P-ADJ
+	     <OR <NOT <SET SYNS <GETPT .OBJ ,P?ADJECTIVE>>>
+		 ;<NOT <ZMEMQB ,P-ADJ .SYNS <- <PTSIZE .SYNS> 1>>>
+		 <NOT %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE>
+			      '<ZMEMQ  ,P-ADJ .SYNS <RMGL-SIZE .SYNS>>)
+			     (T
+			      '<ZMEMQB ,P-ADJ .SYNS <RMGL-SIZE .SYNS>>)>>>>
+	<RFALSE>)
+       (<AND <NOT <ZERO? ,P-GWIMBIT>> <NOT <FSET? .OBJ ,P-GWIMBIT>>>
+	<RFALSE>)>
+ <RTRUE>>
+
+;"add in MISC" 
+
+<DEFMAC RMGL-SIZE ('TBL)
+	<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE>
+	       <FORM - <FORM / <FORM PTSIZE .TBL> 2> 1>)
+	      (T <FORM - <FORM PTSIZE .TBL> 1>)>>
+
+;"not needed in VERBS (INCLUDING next comment)"
+;"defined in compiler for xzip"
+;"when these are referenced, GET (and not GETB) must be used, since it
+takes TWO bytes to represent their values" 
+
+<CONSTANT REXIT 0>
+<CONSTANT UEXIT %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 2) (T 1)>>
+	"Uncondl EXIT:	(dir TO rm)		 = rm"
+<CONSTANT NEXIT %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 3) (T 2)>>
+	"Non EXIT:	(dir SORRY string)	 = str-ing"
+<CONSTANT FEXIT %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 4) (T 3)>>
+	"Fcnl EXIT:	(dir PER rtn)		 = rou-tine, 0"
+<CONSTANT CEXIT %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 5) (T 4)>>
+	"Condl EXIT:	(dir TO rm IF f)	 = rm, f, str-ing"
+<CONSTANT DEXIT %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 6) (T 5)>>
+	"Door EXIT:	(dir TO rm IF dr IS OPEN)= rm, dr, str-ing, 0"
+
+<CONSTANT CEXITFLAG %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 4) (T 1)>>
+	;"GETB"
+<CONSTANT CEXITSTR 1>		;"GET"
+<CONSTANT DEXITOBJ 1>		;"GET"
+<CONSTANT DEXITSTR %<COND (<AND <GASSIGNED? PLUS-MODE> ,PLUS-MODE> 2) (T 1)>>
+        ;"GET"
+
+;"find all GETBs before EXITs (not CEXITFLAG) (usually in VERBS
+V-WALK, OTHER-SIDE) and replace with GET"
+
+;"put SORRY in front of Exit Strings."
+
+;"before GO in MISC add"
+
+<CLEAR -1>
+<INIT-STATUS-LINE>
+
+
+;"CHANGE ALL VOCABULARY FROM 6 TO 9 LETTERS in ADJECTIVE, SYNONYM and SYNTAX"
+
+;"convert PSEUDO objects to real objects"
+;"give them NDESCBITS, DESCs (for default printouts), LOC, SYNONYM, ADJECTIVE,
+  ACTION"
+;"remove/fix assosciated PSEUDO code"
+
+;"ADD V-ID, change VERSION"
+<ROUTINE V-$ID ()
+	 <TELL "Interpreter ">
+	 <PRINTN <GETB 0 30>>
+	 <TELL " Version ">
+	 <PRINTC <GETB 0 31>>
+	 <CRLF>
+	 <RTRUE>>
+
+<ROUTINE V-VERSION ("AUX" (CNT 17) V)
+	 <SET V <BAND <GET 0 1> *3777*>>
+	 <TELL CR 
+"BORDER ZONE: A Game of Intrigue|
+Copyright (c) 1987 by Infocom, Inc. All rights reserved.|
+BORDER ZONE is a trademark of Infocom, Inc.|
+Release " N .V " / Serial number ">
+	 <REPEAT ()
+		 <COND (<G? <SET CNT <+ .CNT 1>> 23>
+			<RETURN>)
+		       (T
+			<PRINTC <GETB 0 .CNT>>)>>
+	 <TELL " / ">
+	 <V-$ID>
+	 <CRLF>>
+
+;"object locations have to be changed from (IN to (LOC"
+
+;"add $REFRESH code and modify V-SAVE"
+
+;"CHANGE SCRIPT AND UNSCRIPT CODE"
+
+;"REMOVE REFERENCES TO P1?OBJECT P1?ADJECTIVE"
+
+;"CHANGE ADJN TO ADJ, XADJN TO XADJ, and remove associated code"
+
+;"check NE in perform fix - for movement"
+
+;"CHANGE GLOBALS THAT ARE ONLY STRINGS TO CONSTANTS"
+
+;"added new AGAIN and OOPS code"
+
+;"changed ZMEMQ and ZMEMQB to INTBL? - added argument to BUT-MERGE"
+
+;"fixed RESTORE to INIT-STATUS-LINE rather than Clearing Screen"
